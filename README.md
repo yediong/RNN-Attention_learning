@@ -65,7 +65,8 @@ ___
 
 ___
 
-![Accurancy](Training_Accuracy.png 'Training_Accuracy'){:height="100px" width="400px"} ![Loss](Loss.png 'Loss'){:height="100px" width="400px"}
+<img src=Training_Accuracy.png width=500> <img src=Loss.png width=500>
+
 
 ___
 
@@ -100,7 +101,8 @@ ___
    epochs过大，曲线趋于平缓，后期准确率提升缓慢，时间成本增加。epochs过小，迭代次数不够，可能导致loss值偏大，准确率低。折中即可。
    
    - epoch=5时
-    ![epoch5_acc](epoch5_acc.png "epoch5_acc"){:height="100px" width="400px"}![epoch5_loss](epoch5_loss.png "epoch5_loss"){:height="100px" width="400px"}
+    <img src=epoch5_acc.png width=400> <img src=epoch5_loss.png width=400> 
 
    - epoch=200时
-    ![epoch200_acc](epoch200_acc.png "epoch200_acc"){:height="100px" width="400px"}![epoch200_loss](epoch200_loss.png "epoch200_loss"){:height="100px" width="400px"}
+    <img src=epoch200_acc.png width=400> <img src=epoch200_loss.png width=400> 
+
