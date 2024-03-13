@@ -101,8 +101,10 @@ ___
    epochs过大，曲线趋于平缓，后期准确率提升缓慢，时间成本增加。epochs过小，迭代次数不够，可能导致loss值偏大，准确率低。折中即可。
    
    - epoch=5时
+
     <img src=epoch5_acc.png width=400> <img src=epoch5_loss.png width=400> 
 
    - epoch=200时
+
     <img src=epoch200_acc.png width=400> <img src=epoch200_loss.png width=400> 
 
