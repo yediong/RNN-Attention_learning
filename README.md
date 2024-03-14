@@ -42,7 +42,7 @@ def forward(self, x):
 
 后用测试集计算准确率Accurancy。选择outputs中的最大值（概率最高即置信度最高，视为预测结果），第二个参数predicted为最大值对应索引，即label。最终计算预测正确的样本数，除以测试集总样本数即为Accurancy。今日测试结果如下：
 
-<img src=loss_old.png width=500> <img src=result.png width=400>
+<img src=picture/loss_old.png width=500> <img src=picture/result.png width=400>
 
 ___
 ## *Day2* (2024.3.13)
@@ -65,7 +65,7 @@ ___
 
 ___
 
-<img src=Training_Accuracy.png width=500> <img src=Loss.png width=500>
+<img src=picture/Training_Accuracy.png width=500> <img src=picture/Loss.png width=500>
 
 
 ___
@@ -102,9 +102,9 @@ ___
    
    - epoch=5时
 
-    <img src=epoch5_acc.png width=400> <img src=epoch5_loss.png width=400> 
+    <img src=picture/epoch5_acc.png width=400> <img src=picture/epoch5_loss.png width=400> 
 
    - epoch=200时
 
-    <img src=epoch200_acc.png width=400> <img src=epoch200_loss.png width=400> 
+    <img src=picture/epoch200_acc.png width=400> <img src=picture/epoch200_loss.png width=400> 
 
