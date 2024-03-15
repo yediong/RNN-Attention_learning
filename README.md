@@ -63,7 +63,6 @@ ___
 
 四个指标值都还行。
 
-___
 
 <img src=picture/Training_Accuracy.png width=500> <img src=picture/Loss.png width=500>
 
@@ -109,3 +108,98 @@ ___
 
     <img src=picture/epoch200_acc.png width=400> <img src=picture/epoch200_loss.png width=400> 
 
+---
+## *Day3* (2024.3.14)
+下午了解了RNN原理并尝试实现，维度匹配耗费了一点时间。晚上尝试提升训练速度（最难绷的一集）。
+
+### 1. 对原理的理解
+将一个输入样本按照n个时间步，分割成n次循环，每一次的隐藏层由输入和上一个时间步所得的隐藏层共同计算得到，输出同理。
+
+### 2. 实现
+和第一道的主要区别在于网络内部的结构差异，并且多了一个分割input和拼接的步骤。外部的训练测试和数据读取函数都没有太大区别。
+
+一开始想尝试看完原理直接自己写net，有助于深刻理解rnn的结构。于是就有了下面这一坨forward：
+```
+    def forward(self, inputs_batch, hidden_num):
+        # 存放一个batch的所有predicted
+        outputs_batch = []
+        # inputs_batch为每批的输入，shape为(batch_size, 28*28)，此处拆成64个一维向量
+        for inputs in inputs_batch:
+            # 存放单个样本的结果
+            outputs = []
+            hidden = torch.zeros(hidden_num)
+            # hidden = hidden.to(inputs.device)
+
+            # 为了满足rnn条件，把一个inputs分割成28个输入
+            split_inputs = [inputs[i * 28:(i + 1) * 28] for i in range(28)]
+
+            for input in split_inputs:
+                combined = torch.cat((input, hidden), dim=0)
+                hidden = self.relu(self.hidden_layer(combined))
+                output = self.output_layer(combined)
+                outputs.append(output)
+            # 单个样本结果取均值，即predicted
+            output_1d = torch.mean(torch.stack(outputs), dim=0)
+            # 将单样本结果加入
+            outputs_batch.append(output_1d)
+
+        # 将多个向量合并成一个张量
+        return torch.stack(outputs_batch)
+```
+我的思路还是太c语言了，先套了第一层循环用来抽取单个样本，再套了第二层循环用来给拆分后的样本拼接hidden层，最后把结果缝合成一个（batch_size,1）的输出。
+
+此外，维度的问题调试了一段时间，最后捋清楚了。
+
+耗时最多的是训练速度慢的问题。刚能运行的时候一个epoch要跑差不多十分钟，这样就很难试出合适的训练参数。于是我进行了以下的尝试：
+- 换优化器：把SGD换成了Adam，毫无卵用
+- 换激活层：先加了tanh，后改成relu，无效果
+- 调整梯度清零的位置：意义不大
+- cpu换gpu：想用gpu跑，但是当前虚拟环境里的pytorch是cpu版本，只能删了重下。装好后测试显示gpu没开，检查半天发现是cuda版本和pytorch不匹配。最后终于能用gpu了，速度还是没什么区别。
+- 数据读取的问题：没用pytorch内置的dataloader，可能对速度有一定影响。但是改过来会对后面的代码造成较大的改动，且第一题用同样的数据读取方法没出问题。
+- 提升硬件性能：回去以后插上电开野兽模式跑了一晚上，醒过来看发现是一坨：
+
+<img src=picture/acc_bad.png width=400> <img src=picture/loss_bad.png width=400>
+
+
+## *Day4* (2024.3.15)
+先处理rnn训练慢的问题。
+
+### 1. 优化rnn结构
+最终确定问题出在网络结构上。于是我去网上找了一些rnn前向传播函数的示例学习了一下，发现问题在于之前的forward里循环层数太多（c课设后遗症），而我对python语法还不够熟，没想到可以直接对高维数组操作。于是修改代码如下：
+
+```
+    def forward(self, inputs_batch, hidden_num):
+        # 把二维的inputs(batch_size,784)重塑成(batch_size,28,28)的三维数组
+        inputs = inputs_batch.squeeze().view(-1, 28, 28)
+
+        # 在每个epoch中重置一个新的隐藏层(二维)
+        hidden = torch.zeros(batch_size, hidden_num)
+
+        # gpu
+        hidden = hidden.to(inputs.device)
+
+        # 以第二维（也就是按时间步）循环，相当于从batch_size个二维数组中，抽出每个数组的第i行（共28行），每个后面拼接一个hidden
+        for i in range(inputs.shape[1]):
+            input = inputs[:, i, :]
+            combined = torch.cat((input, hidden), dim=1)  # 横着拼
+            hidden = self.relu(self.hidden_layer(combined))  # 一开始用的是tanh，但网上说relu更好
+            outputs = self.output_layer(combined)
+
+        return outputs
+```
+
+思路是把输入的二维数组重塑成(batch_size,28,28)的三维数组，以第二维（也就是按时间步）为基准循环，相当于从batch_size个二维数组中，抽出每个数组的第i行（共28行），每个后面拼接一个hidden，以此循环。这样就减少了一层将batch拆成单个样本的循环。
+
+### 2. 完成第二题
+速度上来以后很快调好了参数，训练结果如下：
+>Accuracy=0.915 
+>
+>Precision=0.9030176767676767 
+>
+>Recall=0.9013231608432847 
+>
+>F1=0.9002948928934773
+
+可视化：
+
+<img src=picture/acc_good2.png width=400> <img src=picture/loss_good2.png width=400>
