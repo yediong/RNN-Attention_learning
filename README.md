@@ -4,7 +4,6 @@
 
 今天的进度为完成了第一题的主要部分，还差代入指标计算函数和探索参数对模型表现的影响。空余时间为第5、6节课，11、12节课和半夜。以下是对学习过程的回顾和总结。
 
----
 ### 1. 评测指标
 上周模式识别刚讲了二分类情况下的评测指标，复习了一下。计算评测指标代码没啥东西，套公式就完事了。
 主要在于理解每个指标的意义：
@@ -13,7 +12,6 @@
 - Recall：不管是不是真的positive，都要抓出来。宁可错杀一千，不可放过一个。
 - F1：综合考虑Accurancy和Recall，达到两者的最大平衡。
 
----
 ### 2. 全连接层
 网上找资料了解了一下用nn.Linear构建全连接层和前向传播的原理和方法。
 - 全连接层：
@@ -36,7 +34,6 @@ def forward(self, x):
     return x
 ```
 
----
 ### 3. 分类任务
 先在网上学习了MNIST数据集读取的方法，最终提取出测试集和训练集的img和label共四个数组。调用全连接网络输入各级神经元个数（28 * 28, 128, 256, 10）并存入模型。分批训练，步骤如下：**前向传播 -> 计算loss值 -> 反向传播 -> 用优化器更新参数**，以此循环若干epoch，并将每次迭代的loss值可视化。
 
@@ -67,7 +64,7 @@ ___
 <img src=picture/Training_Accuracy.png width=500> <img src=picture/Loss.png width=500>
 
 
-___
+
 
 ### 2. 探索参数对模型表现的影响
 
@@ -160,7 +157,7 @@ ___
 
 <img src=picture/acc_bad.png width=400> <img src=picture/loss_bad.png width=400>
 
-
+---
 ## *Day4* (2024.3.15)
 先处理rnn训练慢的问题。
 
@@ -203,3 +200,57 @@ ___
 可视化：
 
 <img src=picture/acc_good2.png width=400> <img src=picture/loss_good2.png width=400>
+
+---
+## *Day5* (2024.3.16)
+### 1. 学习self attention和multi-head attention机制
+看了算法题pdf里推荐的两个视频，我的理解如下：
+attention，以nlp为例，就相当于在一句话中一个单词和其他单词的关联程度，通过关联程度的计算，能够判断这个单词对应的value（即含义）。
+从最基础的self attention出发：输入信息分别乘以不同矩阵转化成Q，K，V三个矩阵，再用Q和K进行矩阵乘法获得一句话里多个单词之间的关系矩阵（即单词之间相对的注意力权重），最后将权重矩阵经过softmax处理后乘以V，就可以得到最终输出。
+
+整理笔记：
+
+<img src=picture/attention原理笔记.jpg width=750>
+
+- **Multi-Head**：原始的Q,K,V进行影分身，得到相同的n组Q,K,V，再各自算出对应的权重矩阵，相当于在中间增加了一层维度。
+
+- **对于Q,K,V参数的理解**：
+  - Q即query，理解为输入的查询请求，希望得到对应的value。
+  - K即key，类似于python里的键值对，映射到value，通过与Q比照（距离的远近），算出Q对应的value（感觉K有点类似于参考样本？）
+  - V即value，目标值。
+  
+- **碰到的难点**：感觉主要是矩阵维数的匹配有点绕，要理解每个维度代表的意义和乘法的作用。
+
+
+### 2. 实现MHA
+核心代码：
+
+```
+class MultiHeadAttention(nn.Module):
+    def __init__(self, input_dim, dim_k, dim_v, num_head):
+        super(MultiHeadAttention, self).__init__()
+        # 确保k和v的维度能整除头数
+        assert dim_k % num_head == 0
+        assert dim_v % num_head == 0
+        self.dim_k = dim_k
+        self.dim_v = dim_v
+        self.q = nn.Linear(input_dim, dim_k)
+        self.k = nn.Linear(input_dim, dim_k)
+        self.v = nn.Linear(input_dim, dim_v)
+        self.num_head = num_head
+        self.softmax = nn.Softmax(dim=-1)
+
+    def forward(self, x):
+        # (batch_size, seq_len（一句话有几个单词）, 头数, 维度（身高、体重）)，再把seq_len和dim放最后
+        Q = self.q(x).view(-1, x.shape[1], self.num_head, self.dim_k // self.num_head).permute(0, 2, 1, 3)
+        K = self.k(x).view(-1, x.shape[1], self.num_head, self.dim_k // self.num_head).permute(0, 2, 1, 3)
+        V = self.v(x).view(-1, x.shape[1], self.num_head, self.dim_v // self.num_head).permute(0, 2, 1, 3)
+
+        attention = self.softmax(torch.matmul(Q, K.permute(0, 1, 3, 2)) / math.sqrt(self.dim_k)).transpose(-2, -1)
+        output = torch.matmul(attention, V).reshape(-1, x.shape[1], x.shape[2])
+        return attention, output
+```
+
+权重矩阵：
+
+<img src=picture/MHA.png width=750>
