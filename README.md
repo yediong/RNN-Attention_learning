@@ -277,7 +277,7 @@ class MultiHeadAttention(nn.Module):
         Q = torch.stack([q(x) for q in self.q], dim=1)
 ```
 
-- QGA
+- GQA
 
 ```
         # 创建多个组，每个组包含多个头(此处num_head为每个组的头数)
