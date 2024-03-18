@@ -256,3 +256,43 @@ class MultiHeadAttention(nn.Module):
 权重矩阵：
 
 <img src=picture/MHA.png width=750>
+
+---
+
+## *Day6*（2024.3.17）
+### 1. 理解MQA和GQA原理
+- MQA: 所有输入Q保留，仅共用一对K和V
+- GQA: 对MHA进行分组，每组单独公用一对K和V
+
+<img src=picture/MQA_GQA.png width=750>
+
+其实和MHA没有太大区别，就是几个Q共用一对K和V的问题。
+
+### 2. 实现
+- MQA
+
+```
+        self.q = nn.ModuleList([nn.Linear(input_dim, dim_k) for _ in range(num_head)])
+
+        Q = torch.stack([q(x) for q in self.q], dim=1)
+```
+
+- QGA
+
+```
+        # 创建多个组，每个组包含多个头(此处num_head为每个组的头数)
+        self.groups = nn.ModuleList([
+            MultiHeadAttention(input_dim, dim_k // num_head, dim_v // num_head, num_head)
+            for _ in range(num_group)
+        ])
+
+        for group in self.groups:
+            group_attention, group_output = group(x)
+            attention_outputs.append(group_attention.unsqueeze(1))
+            group_outputs.append(group_output.unsqueeze(1))        
+```
+
+### 3. 结果
+MHA, MQA, GQA运行结果如下：
+
+<img src=picture/merged_image.png width=750>
