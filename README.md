@@ -1,4 +1,4 @@
-# *learning notes* by 叶庭宏
+# *learning notes*
 ## *Day1* （2024.3.12）
 
 
@@ -7,10 +7,10 @@
 ### 1. 评测指标
 上周模式识别刚讲了二分类情况下的评测指标，复习了一下。计算评测指标代码没啥东西，套公式就完事了。
 主要在于理解每个指标的意义：
-- Accurancy：整体预测正确情况占比。
-- Precision：不要求整体准确率高，只要positive类中精度高。“冤假错案成本高，漏网之鱼成本低”。
-- Recall：不管是不是真的positive，都要抓出来。宁可错杀一千，不可放过一个。
-- F1：综合考虑Accurancy和Recall，达到两者的最大平衡。
+- Accurancy：整体预测正确情况占比
+- Precision：不要求整体准确率高，只要positive类中精度高
+- Recall：不管是不是真的positive，都要抓出来
+- F1：综合考虑Accurancy和Recall，达到两者的最大平衡
 
 ### 2. 全连接层
 网上找资料了解了一下用nn.Linear构建全连接层和前向传播的原理和方法。
