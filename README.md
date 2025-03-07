@@ -1,5 +1,5 @@
 # *learning notes*
-## *Day1* （2024.3.12）
+## *Day1* 
 
 
 今天的进度为完成了第一题的主要部分，还差代入指标计算函数和探索参数对模型表现的影响。空余时间为第5、6节课，11、12节课和半夜。以下是对学习过程的回顾和总结。
@@ -9,7 +9,7 @@
 主要在于理解每个指标的意义：
 - Accurancy：整体预测正确情况占比
 - Precision：不要求整体准确率高，只要positive类中精度高
-- Recall：不管是不是真的positive，都要抓出来
+- Recall：不管是不是真的positive都要抓出来
 - F1：综合考虑Accurancy和Recall，达到两者的最大平衡
 
 ### 2. 全连接层
@@ -42,7 +42,7 @@ def forward(self, x):
 <img src=picture/loss_old.png width=500> <img src=picture/result.png width=400>
 
 ___
-## *Day2* (2024.3.13)
+## *Day2* 
 今天正好生日，做的不多，第一题基本完成了。
 ### 1. 对第一题的代码进行了如下修改：
 - 修改了评价指标函数，使其适用于多分类问题。最终打印各参数的均值。
@@ -106,7 +106,7 @@ ___
     <img src=picture/epoch200_acc.png width=400> <img src=picture/epoch200_loss.png width=400> 
 
 ---
-## *Day3* (2024.3.14)
+## *Day3* 
 下午了解了RNN原理并尝试实现，维度匹配耗费了一点时间。晚上尝试提升训练速度（最难绷的一集）。
 
 ### 1. 对原理的理解
@@ -158,7 +158,7 @@ ___
 <img src=picture/acc_bad.png width=400> <img src=picture/loss_bad.png width=400>
 
 ---
-## *Day4* (2024.3.15)
+## *Day4*
 先处理rnn训练慢的问题。
 
 ### 1. 优化rnn结构
@@ -202,7 +202,7 @@ ___
 <img src=picture/acc_good2.png width=400> <img src=picture/loss_good2.png width=400>
 
 ---
-## *Day5* (2024.3.16)
+## *Day5* 
 ### 1. 学习self attention和multi-head attention机制
 看了算法题pdf里推荐的两个视频，我的理解如下：
 
@@ -259,7 +259,7 @@ class MultiHeadAttention(nn.Module):
 
 ---
 
-## *Day6*（2024.3.17）
+## *Day6*
 ### 1. 理解MQA和GQA原理
 - MQA: 所有输入Q保留，仅共用一对K和V
 - GQA: 对MHA进行分组，每组单独公用一对K和V
